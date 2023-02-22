@@ -32,12 +32,15 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-Object player = { 200, 200, 50, 50, 100, Player };
+Object player = { 200, 300, 50, 50, 100, Player };
+int desy = 400;
+double vely = 0;
 
 //=============================================================================
 
 int PosUp(float dt)
 {
+	player.box.y += (int)(vely * dt + 0.5f);
 	if (IsKeyDown(SDL_SCANCODE_A))
 	{
 		player.box.x -= (int)(player.speed * dt + 0.5f);
@@ -45,6 +48,18 @@ int PosUp(float dt)
 	if (IsKeyDown(SDL_SCANCODE_D))
 	{
 		player.box.x += (int)(player.speed * dt + 0.5f);
+	}
+	if (IsKeyDown(SDL_SCANCODE_W))
+	{
+		vely = -500;
+	}
+	if (player.box.y + player.box.h >= desy)
+	{
+		vely = 0;
+	}
+	else if (player.box.y + player.box.h < desy)
+	{
+		vely += 10;
 	}
 	return 0;
 }

@@ -6,5 +6,6 @@ struct Object
 {
 	SDL_Rect box;
 	double speed;
+	int desy;
 	Type type;
 };

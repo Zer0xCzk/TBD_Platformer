@@ -51,15 +51,23 @@ int PosUp(float dt)
 	}
 	if (IsKeyDown(SDL_SCANCODE_W))
 	{
-		vely = -500;
+		vely = -600;
 	}
-	if (player.box.y + player.box.h >= desy)
+	if (player.box.y + player.box.h > player.desy)
 	{
-		vely = 0;
+		player.box.y = player.desy - 1 - player.box.h;
 	}
-	else if (player.box.y + player.box.h < desy)
+	else if (player.box.y + player.box.h < player.desy)
 	{
-		vely += 10;
+		vely += 15;
+	}
+	if (player.box.x > WINDOW_WIDTH / 2)
+	{
+		player.desy = 200;
+	}
+	else
+	{
+		player.desy = 400;
 	}
 	return 0;
 }

@@ -11,8 +11,8 @@
 void Update(float dt);
 void RenderFrame(float dt);
 
-#define WINDOW_WIDTH 1200
-#define WINDOW_HEIGHT 900
+#define WW 1200
+#define WH 900
 
 //=============================================================================
 int main(int argc, char* argv[])
@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	if (!CreateWindow("Cyper", WINDOW_WIDTH, WINDOW_HEIGHT))
+	if (!CreateWindow("Cyper", WW, WH))
 	{
 		return 1;
 	}
@@ -32,13 +32,37 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-Object player = { 200, 300, 50, 50, 100, 0};
-Object terrain[20] = {200, 300, 50, 50, 100, 0};
-Object terrain1 = { 500, 100, 600, 100, 100, 0 };
-Object terrain2 = { 100, 300, 300, 300, 100, 0 };
+Object player = { 350, 100, 50, 50, 100, 0};
+Object terrain[20] = {0, 0, 0, 0, 0, 0};
+Object terrain1 = { 500, 100, 600, 100, 100, 0};
+Object terrain2 = { 100, 300, 300, 300, 100, 0};
 int desy = 400;
 
 //=============================================================================
+
+void TerGen()
+{
+	int spacing = 150;
+	int xoffset = 350;
+	int yoffset = 100;
+	for (int i = 0; i < 10; i++)
+	{
+		if (i % 2 == 0)
+		{
+			terrain[i].box.w = 200;
+			terrain[i].box.h = 100;
+			terrain[i].box.x = xoffset;
+			terrain[i].box.y = yoffset + (i * spacing);
+		}
+		else
+		{
+			terrain[i].box.w = 200;
+			terrain[i].box.h = 100;
+			terrain[i].box.x = WW - xoffset - terrain[i].box.w;
+			terrain[i].box.y = yoffset + (i * spacing);
+		}
+	}
+}
 
 void PosUp(float dt)
 {
@@ -59,28 +83,26 @@ void PosUp(float dt)
 	return;
 }
 
-void ColUp(float dt)
+void ColUp()
 {
-	//SDL_Point left_bottom = { ebullet[i].box.x, ebullet[i].box.y + ebullet[i].box.h };
 	SDL_Point left_bottom = { player.box.x, player.box.y + player.box.h };
 	SDL_Point right_bottom = { player.box.x + player.box.w, player.box.y + player.box.h };
-	if (SDL_PointInRect(&right_bottom, &terrain1.box) || SDL_PointInRect(&left_bottom, &terrain1.box))
+	for (int i = 0; i < 10; i++)
 	{
-		player.box.y = terrain1.box.y - 1 - player.box.h;
-		player.vely = 0;
-	}
-	if (SDL_PointInRect(&right_bottom, &terrain2.box) || SDL_PointInRect(&left_bottom, &terrain2.box))
-	{
-		player.box.y = terrain2.box.y - 1 - player.box.h;
-		player.vely = 0;
+		if (SDL_PointInRect(&right_bottom, &terrain[i].box) || SDL_PointInRect(&left_bottom, &terrain[i].box))
+		{
+			player.box.y = terrain[i].box.y - 1 - player.box.h;
+			player.vely = 0;
+		}
 	}
 	return;
 }
 
 void Update(float dt)
 {
+	TerGen();
 	PosUp(dt);
-	ColUp(dt);
+	ColUp();
 	if (IsKeyDown(SDL_SCANCODE_ESCAPE))
 		ExitGame();
 }
@@ -94,6 +116,8 @@ void RenderFrame(float interpolation)
 	SDL_SetRenderDrawColor(gRenderer, 160, 0, 160, 255);
 	SDL_RenderFillRect(gRenderer, &player.box);
 	SDL_SetRenderDrawColor(gRenderer, 120, 120, 120, 255);
-	SDL_RenderFillRect(gRenderer, &terrain1.box);
-	SDL_RenderFillRect(gRenderer, &terrain2.box);
+	for (int i = 0; i < 10; i++)
+	{
+		SDL_RenderFillRect(gRenderer, &terrain[i].box);
+	}
 }

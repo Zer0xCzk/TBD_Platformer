@@ -32,15 +32,17 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-Object player = { 200, 300, 50, 50, 100, Player };
+Object player = { 200, 300, 50, 50, 100, 0};
+Object terrain[20] = {200, 300, 50, 50, 100, 0};
+Object terrain1 = { 500, 100, 600, 100, 100, 0 };
+Object terrain2 = { 100, 300, 300, 300, 100, 0 };
 int desy = 400;
-double vely = 0;
 
 //=============================================================================
 
-int PosUp(float dt)
+void PosUp(float dt)
 {
-	player.box.y += (int)(vely * dt + 0.5f);
+	player.box.y += (int)(player.vely * dt + 0.5f);
 	if (IsKeyDown(SDL_SCANCODE_A))
 	{
 		player.box.x -= (int)(player.speed * dt + 0.5f);
@@ -51,30 +53,34 @@ int PosUp(float dt)
 	}
 	if (IsKeyDown(SDL_SCANCODE_W))
 	{
-		vely = -600;
+		player.vely = -600;
 	}
-	if (player.box.y + player.box.h > player.desy)
+	player.vely += 15;
+	return;
+}
+
+void ColUp(float dt)
+{
+	//SDL_Point left_bottom = { ebullet[i].box.x, ebullet[i].box.y + ebullet[i].box.h };
+	SDL_Point left_bottom = { player.box.x, player.box.y + player.box.h };
+	SDL_Point right_bottom = { player.box.x + player.box.w, player.box.y + player.box.h };
+	if (SDL_PointInRect(&right_bottom, &terrain1.box) || SDL_PointInRect(&left_bottom, &terrain1.box))
 	{
-		player.box.y = player.desy - 1 - player.box.h;
+		player.box.y = terrain1.box.y - 1 - player.box.h;
+		player.vely = 0;
 	}
-	else if (player.box.y + player.box.h < player.desy)
+	if (SDL_PointInRect(&right_bottom, &terrain2.box) || SDL_PointInRect(&left_bottom, &terrain2.box))
 	{
-		vely += 15;
+		player.box.y = terrain2.box.y - 1 - player.box.h;
+		player.vely = 0;
 	}
-	if (player.box.x > WINDOW_WIDTH / 2)
-	{
-		player.desy = 200;
-	}
-	else
-	{
-		player.desy = 400;
-	}
-	return 0;
+	return;
 }
 
 void Update(float dt)
 {
 	PosUp(dt);
+	ColUp(dt);
 	if (IsKeyDown(SDL_SCANCODE_ESCAPE))
 		ExitGame();
 }
@@ -85,6 +91,9 @@ void RenderFrame(float interpolation)
 	// Clear screen
 	SDL_SetRenderDrawColor(gRenderer, 65, 105, 225, 255);
 	SDL_RenderClear(gRenderer);
-	SDL_SetRenderDrawColor(gRenderer, 0, 200, 200, 255);
+	SDL_SetRenderDrawColor(gRenderer, 160, 0, 160, 255);
 	SDL_RenderFillRect(gRenderer, &player.box);
+	SDL_SetRenderDrawColor(gRenderer, 120, 120, 120, 255);
+	SDL_RenderFillRect(gRenderer, &terrain1.box);
+	SDL_RenderFillRect(gRenderer, &terrain2.box);
 }

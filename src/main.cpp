@@ -35,7 +35,8 @@ int main(int argc, char* argv[])
 Object player = { 350, 100, 50, 50, 100, 0};
 Object terrain[20] = {0, 0, 0, 0, 0, 0};
 Object terrain1 = { 500, 100, 600, 100, 100, 0};
-Object terrain2 = { 100, 300, 300, 300, 100, 0};
+Object terrain2 = { 100, 300, 300, 300, 100, 0 };
+const int ammount = 10;
 
 //=============================================================================
 
@@ -44,12 +45,12 @@ void TerGen()
 	int spacing = 150;
 	int xoffset = 350;
 	int yoffset = 100;
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < ammount; i++)
 	{
 		if (i % 2 == 0)
 		{
 			terrain[i].box.w = 200;
-			terrain[i].box.h = 100;
+			terrain[i].box.h = 200;
 			terrain[i].box.x = xoffset;
 			terrain[i].box.y = yoffset + (i * spacing);
 		}
@@ -78,6 +79,7 @@ void PosUp(float dt)
 	{
 		player.box.x += (int)(player.speed * dt + 0.5f);
 	}
+
 	player.vely += 15;
 	return;
 }
@@ -91,10 +93,16 @@ void ColUp(float dt)
 	for (int i = 0; i < 10; i++)
 	{
 		//Keeps the player to the left of a rectangle
-		if ((SDL_PointInRect(&right_bottom, &terrain[i].box) && player.box.y < terrain[i].box.y + terrain[i].box.h && player.box.y > terrain[i].box.y) || (SDL_PointInRect(&right_top, &terrain[i].box) && player.box.y > terrain[i].box.y && player.box.y < terrain[i].box.y + terrain[i].box.h))
+		if ((SDL_PointInRect(&right_bottom, &terrain[i].box) && player.box.y < terrain[i].box.y + terrain[i].box.h && player.box.y > terrain[i].box.y) || (SDL_PointInRect(&right_top, &terrain[i].box) && player.box.y < terrain[i].box.y && player.box.y > terrain[i].box.y + terrain[i].box.h))
 		{
 		player.box.x = terrain[i].box.x - 1 - player.box.w;
 		player.speed = 0;
+		}
+		//Keeps the player to the right of a rectangle
+		else if ((SDL_PointInRect(&left_bottom, &terrain[i].box) && player.box.y < terrain[i].box.y + terrain[i].box.h && player.box.y > terrain[i].box.y) || (SDL_PointInRect(&left_top, &terrain[i].box) && player.box.y < terrain[i].box.y && player.box.y > terrain[i].box.y + terrain[i].box.h))
+		{
+			player.box.x = terrain[i].box.x + terrain[i].box.w + 1;
+			player.speed = 0;
 		}
 		//Keeps the player above a rectangle
 		else if (SDL_PointInRect(&right_bottom, &terrain[i].box) || SDL_PointInRect(&left_bottom, &terrain[i].box))
@@ -108,9 +116,7 @@ void ColUp(float dt)
 			player.box.y = terrain[i].box.y + terrain[i].box.h + 1;
 			player.vely = 0;
 		}
-		player.speed = 100;
-		
-		
+		player.speed = 200;
 	}
 	return;
 }
@@ -133,7 +139,7 @@ void RenderFrame(float interpolation)
 	SDL_SetRenderDrawColor(gRenderer, 160, 0, 160, 255);
 	SDL_RenderFillRect(gRenderer, &player.box);
 	SDL_SetRenderDrawColor(gRenderer, 120, 120, 120, 255);
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < ammount; i++)
 	{
 		SDL_RenderFillRect(gRenderer, &terrain[i].box);
 	}

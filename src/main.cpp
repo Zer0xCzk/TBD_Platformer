@@ -36,7 +36,6 @@ Object player = { 350, 100, 50, 50, 100, 0};
 Object terrain[20] = {0, 0, 0, 0, 0, 0};
 Object terrain1 = { 500, 100, 600, 100, 100, 0};
 Object terrain2 = { 100, 300, 300, 300, 100, 0};
-int desy = 400;
 
 //=============================================================================
 
@@ -71,29 +70,47 @@ void PosUp(float dt)
 	{
 		player.box.x -= (int)(player.speed * dt + 0.5f);
 	}
-	if (IsKeyDown(SDL_SCANCODE_D))
-	{
-		player.box.x += (int)(player.speed * dt + 0.5f);
-	}
 	if (IsKeyDown(SDL_SCANCODE_W))
 	{
 		player.vely = -600;
+	}
+	if (IsKeyDown(SDL_SCANCODE_D))
+	{
+		player.box.x += (int)(player.speed * dt + 0.5f);
 	}
 	player.vely += 15;
 	return;
 }
 
-void ColUp()
+void ColUp(float dt)
 {
+	SDL_Point left_top = { player.box.x, player.box.y};
+	SDL_Point right_top = { player.box.x + player.box.w, player.box.y };
 	SDL_Point left_bottom = { player.box.x, player.box.y + player.box.h };
 	SDL_Point right_bottom = { player.box.x + player.box.w, player.box.y + player.box.h };
 	for (int i = 0; i < 10; i++)
 	{
-		if (SDL_PointInRect(&right_bottom, &terrain[i].box) || SDL_PointInRect(&left_bottom, &terrain[i].box))
+		//Keeps the player to the left of a rectangle
+		if ((SDL_PointInRect(&right_bottom, &terrain[i].box) && player.box.y < terrain[i].box.y + terrain[i].box.h && player.box.y > terrain[i].box.y) || (SDL_PointInRect(&right_top, &terrain[i].box) && player.box.y > terrain[i].box.y && player.box.y < terrain[i].box.y + terrain[i].box.h))
+		{
+		player.box.x = terrain[i].box.x - 1 - player.box.w;
+		player.speed = 0;
+		}
+		//Keeps the player above a rectangle
+		else if (SDL_PointInRect(&right_bottom, &terrain[i].box) || SDL_PointInRect(&left_bottom, &terrain[i].box))
 		{
 			player.box.y = terrain[i].box.y - 1 - player.box.h;
 			player.vely = 0;
 		}
+		//Keeps the player below a rectangle
+		else if (SDL_PointInRect(&right_top, &terrain[i].box) || SDL_PointInRect(&left_top, &terrain[i].box))
+		{
+			player.box.y = terrain[i].box.y + terrain[i].box.h + 1;
+			player.vely = 0;
+		}
+		player.speed = 100;
+		
+		
 	}
 	return;
 }
@@ -102,7 +119,7 @@ void Update(float dt)
 {
 	TerGen();
 	PosUp(dt);
-	ColUp();
+	ColUp(dt);
 	if (IsKeyDown(SDL_SCANCODE_ESCAPE))
 		ExitGame();
 }

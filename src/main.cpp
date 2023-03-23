@@ -32,7 +32,8 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-Object player = { 350, 100, 50, 50, 100, 0};
+Object player = { 350, 100, 50, 50, 200, 0};
+Object pastplayer = player;
 Object terrain[20] = {0, 0, 0, 0, 0, 0};
 Object terrain1 = { 500, 100, 600, 100, 100, 0};
 Object terrain2 = { 100, 300, 300, 300, 100, 0 };
@@ -66,7 +67,6 @@ void TerGen()
 
 void PosUp(float dt)
 {
-	player.box.y += (int)(player.vely * dt + 0.5f);
 	if (IsKeyDown(SDL_SCANCODE_A))
 	{
 		player.box.x -= (int)(player.speed * dt + 0.5f);
@@ -79,9 +79,8 @@ void PosUp(float dt)
 	{
 		player.box.x += (int)(player.speed * dt + 0.5f);
 	}
-
 	player.vely += 15;
-	return;
+	player.box.y += (int)(player.vely * dt + 0.5f);
 }
 
 void ColUp(float dt)
@@ -92,33 +91,30 @@ void ColUp(float dt)
 	SDL_Point right_bottom = { player.box.x + player.box.w, player.box.y + player.box.h };
 	for (int i = 0; i < 10; i++)
 	{
-		//Keeps the player to the left of a rectangle
-		if ((SDL_PointInRect(&right_bottom, &terrain[i].box) && player.box.y < terrain[i].box.y + terrain[i].box.h && player.box.y > terrain[i].box.y) || (SDL_PointInRect(&right_top, &terrain[i].box) && player.box.y < terrain[i].box.y && player.box.y > terrain[i].box.y + terrain[i].box.h))
-		{
-		player.box.x = terrain[i].box.x - 1 - player.box.w;
-		player.speed = 0;
-		}
-		//Keeps the player to the right of a rectangle
-		else if ((SDL_PointInRect(&left_bottom, &terrain[i].box) && player.box.y < terrain[i].box.y + terrain[i].box.h && player.box.y > terrain[i].box.y) || (SDL_PointInRect(&left_top, &terrain[i].box) && player.box.y < terrain[i].box.y && player.box.y > terrain[i].box.y + terrain[i].box.h))
-		{
-			player.box.x = terrain[i].box.x + terrain[i].box.w + 1;
-			player.speed = 0;
-		}
 		//Keeps the player above a rectangle
-		else if (SDL_PointInRect(&right_bottom, &terrain[i].box) || SDL_PointInRect(&left_bottom, &terrain[i].box))
+		if ((SDL_PointInRect(&right_bottom, &terrain[i].box) || SDL_PointInRect(&left_bottom, &terrain[i].box)) && pastplayer.box.y + pastplayer.box.h <= terrain[i].box.y)
 		{
-			player.box.y = terrain[i].box.y - 1 - player.box.h;
-			player.vely = 0;
+		player.box.y = terrain[i].box.y  - player.box.h;
+		player.vely = 0;
 		}
 		//Keeps the player below a rectangle
-		else if (SDL_PointInRect(&right_top, &terrain[i].box) || SDL_PointInRect(&left_top, &terrain[i].box))
+		else if ((SDL_PointInRect(&right_top, &terrain[i].box) || SDL_PointInRect(&left_top, &terrain[i].box)) && pastplayer.box.y >= terrain[i].box.y + terrain[i].box.h)
 		{
-			player.box.y = terrain[i].box.y + terrain[i].box.h + 1;
-			player.vely = 0;
+		player.box.y = terrain[i].box.y + terrain[i].box.h;
+		player.vely = 0;
 		}
-		player.speed = 200;
+		//Keeps the player to the left of a rectangle
+		else if (SDL_PointInRect(&right_bottom, &terrain[i].box) || SDL_PointInRect(&right_top, &terrain[i].box))
+		{
+		player.box.x = terrain[i].box.x - player.box.w;
+		}
+		//Keeps the player to the right of a rectangle
+		else if (SDL_PointInRect(&left_bottom, &terrain[i].box) || SDL_PointInRect(&left_top, &terrain[i].box))
+		{
+			player.box.x = terrain[i].box.x + terrain[i].box.w;
+		}
 	}
-	return;
+	pastplayer = player;
 }
 
 void Update(float dt)

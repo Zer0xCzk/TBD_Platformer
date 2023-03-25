@@ -15,6 +15,7 @@ void RenderFrame(float dt);
 #define WH 900
 
 //=============================================================================
+
 int main(int argc, char* argv[])
 {
 	if (!InitSDL())
@@ -35,9 +36,8 @@ int main(int argc, char* argv[])
 Object player = { 350, 100, 50, 50, 200, 0};
 Object pastplayer = player;
 Object terrain[20] = {0, 0, 0, 0, 0, 0};
-Object terrain1 = { 500, 100, 600, 100, 100, 0};
-Object terrain2 = { 100, 300, 300, 300, 100, 0 };
 const int ammount = 10;
+bool jump;
 
 //=============================================================================
 
@@ -71,9 +71,10 @@ void PosUp(float dt)
 	{
 		player.box.x -= (int)(player.speed * dt + 0.5f);
 	}
-	if (IsKeyDown(SDL_SCANCODE_W))
+	if (IsKeyDown(SDL_SCANCODE_W) && jump == true)
 	{
-		player.vely = -600;
+		player.vely = -700;
+		jump = false;
 	}
 	if (IsKeyDown(SDL_SCANCODE_D))
 	{
@@ -94,24 +95,27 @@ void ColUp(float dt)
 		//Keeps the player above a rectangle
 		if ((SDL_PointInRect(&right_bottom, &terrain[i].box) || SDL_PointInRect(&left_bottom, &terrain[i].box)) && pastplayer.box.y + pastplayer.box.h <= terrain[i].box.y)
 		{
-		player.box.y = terrain[i].box.y  - player.box.h;
-		player.vely = 0;
+			player.box.y = terrain[i].box.y  - player.box.h;
+			player.vely = 0;
+			jump = true;
 		}
 		//Keeps the player below a rectangle
 		else if ((SDL_PointInRect(&right_top, &terrain[i].box) || SDL_PointInRect(&left_top, &terrain[i].box)) && pastplayer.box.y >= terrain[i].box.y + terrain[i].box.h)
 		{
-		player.box.y = terrain[i].box.y + terrain[i].box.h;
-		player.vely = 0;
+			player.box.y = terrain[i].box.y + terrain[i].box.h;
+			player.vely = 0;
 		}
 		//Keeps the player to the left of a rectangle
 		else if (SDL_PointInRect(&right_bottom, &terrain[i].box) || SDL_PointInRect(&right_top, &terrain[i].box))
 		{
-		player.box.x = terrain[i].box.x - player.box.w;
+			player.box.x = terrain[i].box.x - player.box.w;
+			jump = true;
 		}
 		//Keeps the player to the right of a rectangle
 		else if (SDL_PointInRect(&left_bottom, &terrain[i].box) || SDL_PointInRect(&left_top, &terrain[i].box))
 		{
 			player.box.x = terrain[i].box.x + terrain[i].box.w;
+			jump = true;
 		}
 	}
 	pastplayer = player;

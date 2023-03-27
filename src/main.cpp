@@ -33,31 +33,31 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-Object player = { 350, 100, 50, 50, 200, 0};
-Object pastplayer = player;
-Object terrain[20] = {0, 0, 0, 0, 0, 0};
-const int ammount = 10;
 bool jump;
+const int ammount = 10;
+Object player = { 0, 0, 50, 50, 200, 0};
+Object pastplayer = player;
+Object terrain[ammount] = {0, 0, 0, 0, 0, 0};
 
 //=============================================================================
 
 void TerGen()
 {
 	int spacing = 150;
-	int xoffset = 350;
-	int yoffset = 100;
+	int xoffset = 75;
+	int yoffset = 75;
 	for (int i = 0; i < ammount; i++)
 	{
 		if (i % 2 == 0)
 		{
-			terrain[i].box.w = 200;
+			terrain[i].box.w = 450;
 			terrain[i].box.h = 200;
 			terrain[i].box.x = xoffset;
 			terrain[i].box.y = yoffset + (i * spacing);
 		}
 		else
 		{
-			terrain[i].box.w = 200;
+			terrain[i].box.w = 450;
 			terrain[i].box.h = 100;
 			terrain[i].box.x = WW - xoffset - terrain[i].box.w;
 			terrain[i].box.y = yoffset + (i * spacing);
@@ -71,7 +71,7 @@ void PosUp(float dt)
 	{
 		player.box.x -= (int)(player.speed * dt + 0.5f);
 	}
-	if (IsKeyDown(SDL_SCANCODE_W) && jump == true)
+	if (IsKeyDown(SDL_SCANCODE_W) && jump)
 	{
 		player.vely = -700;
 		jump = false;
@@ -90,7 +90,7 @@ void ColUp(float dt)
 	SDL_Point right_top = { player.box.x + player.box.w, player.box.y };
 	SDL_Point left_bottom = { player.box.x, player.box.y + player.box.h };
 	SDL_Point right_bottom = { player.box.x + player.box.w, player.box.y + player.box.h };
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < ammount; i++)
 	{
 		//Keeps the player above a rectangle
 		if ((SDL_PointInRect(&right_bottom, &terrain[i].box) || SDL_PointInRect(&left_bottom, &terrain[i].box)) && pastplayer.box.y + pastplayer.box.h <= terrain[i].box.y)
@@ -127,7 +127,9 @@ void Update(float dt)
 	PosUp(dt);
 	ColUp(dt);
 	if (IsKeyDown(SDL_SCANCODE_ESCAPE))
+	{
 		ExitGame();
+	}
 }
 
 void RenderFrame(float interpolation)
@@ -136,6 +138,7 @@ void RenderFrame(float interpolation)
 	// Clear screen
 	SDL_SetRenderDrawColor(gRenderer, 65, 105, 225, 255);
 	SDL_RenderClear(gRenderer);
+
 	SDL_SetRenderDrawColor(gRenderer, 160, 0, 160, 255);
 	SDL_RenderFillRect(gRenderer, &player.box);
 	SDL_SetRenderDrawColor(gRenderer, 120, 120, 120, 255);

@@ -1,4 +1,4 @@
-# This project has been moved to a new repo called "Cyper"
+# This project has been moved to a [new repo](https://github.com/Zer0xCzk/Cyper)
 
 
 # TBD_Platformer
